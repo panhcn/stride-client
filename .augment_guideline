@@ -1,0 +1,1374 @@
+You are an engineering coding agent for Stride.
+
+# Code Organization
+
+## Top-Level Directory Structure
+```
+/
+├── public/      # Static files and index.html
+├── src/         # Main application code and business logic
+├── config/      # Configuration files (if using CRA or similar)
+├── .github/     # GitHub specific configurations
+├── node_modules/# Third-party dependencies
+├── build/       # Production build output
+├── coverage/    # Test coverage reports
+```
+
+## Folder Documentation
+1. Major folder contains a `README.md` file that explains:
+   - Folder's specific purpose.
+   - Code organization, purpose of important files / folders.
+   - Guidelines of how to make changes.
+2. Always read `README.md` before adding code to a folder
+3. Keep `README.md` up to date when patterns change
+4. Consider adding this file, when number of files in the folder is getting a lot and hard to navigate.
+
+## File Naming Conventions
+
+### React Component Files
+- Components: `PascalCase.jsx` or `PascalCase.tsx` (for TypeScript)
+- Custom Hooks: `useCamelCase.js` or `useCamelCase.ts`
+- Context Providers: `PascalCaseContext.jsx` or `PascalCaseContext.tsx`
+- Higher-Order Components: `withCamelCase.jsx` or `withCamelCase.tsx`
+- Utility Functions: `camelCase.js` or `camelCase.ts`
+
+### JavaScript/TypeScript Files
+- Services/API: `camelCaseService.js` or `camelCaseApi.js`
+- Redux: `camelCaseSlice.js`, `camelCaseActions.js`, `camelCaseSelectors.js`
+- Entry point: `index.js` or `index.tsx`
+
+### Asset Files
+- Images: `kebab-case.png`
+- Stylesheets: `PascalCase.module.css` or `PascalCase.module.scss` (for component styles)
+- Global styles: `kebab-case.css` or `kebab-case.scss`
+
+## Component Organization
+- Use component composition for related functionality
+- Keep component nesting to maximum 3 levels
+- Example: `<Layout><Dashboard><DashboardWidget /></Dashboard></Layout>`
+- Group related components in feature folders
+
+## File Location Rules
+1. New code goes in the appropriate directory based on its purpose
+2. Each directory should have a clear, single responsibility
+3. Components go in `src/components/` or feature-specific folders
+4. Reusable hooks go in `src/hooks/`
+5. API services go in `src/services/` or `src/api/`
+6. Redux/state management code goes in `src/store/`
+7. Utility functions go in `src/utils/`
+8. Types/interfaces go in `src/types/` (for TypeScript projects)
+9. Assets go in `src/assets/`
+10. Configuration stays in `config/` or `.env` files
+
+## Best Practices
+1. Follow the established naming conventions strictly
+2. Keep components focused and single-purpose
+3. Use proper component composition for related functionality
+4. Maintain clear separation of concerns between components and directories
+5. Don't create new top-level directories without team discussion
+6. Always read and follow folder-specific `README.md` before adding code
+7. Use functional components with hooks instead of class components
+8. Extract reusable logic into custom hooks
+9. Use React context for state that needs to be accessed by many components
+10. Implement proper prop validation with PropTypes or TypeScript
+
+# Documentation
+
+## Documentation Philosophy
+1. Documentation serves dual audiences:
+   - Human reviewers for code review and maintenance
+   - AI agents for code analysis and assistance
+2. Optimize documentation for both readability and machine parsing
+3. Prioritize clarity and context over brevity
+
+## React Documentation Standards
+1. Use JSDoc style documentation for JavaScript/TypeScript files
+2. Document all components, hooks, and utility functions
+3. Include prop types or TypeScript interfaces/types
+4. Document component state management and side effects
+5. Keep documentation DRY (Don't Repeat Yourself)
+6. Use component stories (Storybook) for visual documentation
+
+## Code Commentary Guidelines
+1. Add inline comments for logical sections:
+   ```javascript
+   // Calculate user permissions based on role and team membership
+   const permissions = getUserPermissions(user.role);
+   if (user.teamMember) {
+     Object.assign(permissions, getTeamPermissions(user.teamId));
+   }
+
+   // Apply special override rules for admin users
+   if (user.isAdmin) {
+     Object.assign(permissions, adminOverrides);
+   }
+   ```
+
+2. Document complex algorithms with step-by-step explanations:
+   ```javascript
+   const calculateScore = () => {
+     // Step 1: Gather base metrics
+     const baseMetrics = collectBaseMetrics();
+
+     // Step 2: Apply weight factors based on user level
+     const weightedScore = applyWeights(baseMetrics, userLevel);
+
+     // Step 3: Adjust for seasonal bonuses
+     return applySeasonalAdjustments(weightedScore);
+   };
+   ```
+
+3. Include context and reasoning for non-obvious decisions:
+   ```javascript
+   // Using React.memo here to prevent unnecessary re-renders
+   // when parent component updates with props that don't affect this component
+   const UserCard = React.memo(({ user, onSelect }) => {
+     return (
+       <div onClick={() => onSelect(user.id)}>
+         {user.name}
+       </div>
+     );
+   });
+   ```
+
+## Required Documentation Elements
+1. **Components**
+   - Purpose and responsibility
+   - Props with types and default values
+   - State management approach
+   - Usage examples for complex components
+
+2. **Hooks**
+   - Parameters and return values
+   - Side effects and cleanup
+   - Dependencies and their purpose
+   - Usage examples for custom hooks
+
+3. **Context Providers**
+   - Available values and methods
+   - Update patterns
+   - Performance considerations
+   - Consumer usage examples
+
+4. **API/Services**
+   - Endpoints and parameters
+   - Response formats
+   - Error handling
+   - Authentication requirements
+
+## Documentation Format
+```jsx
+/**
+ * User profile component that displays and manages user information
+ *
+ * @component
+ * @example
+ * return (
+ *   <UserProfile
+ *     userId="123"
+ *     editable={true}
+ *     onUpdate={(data) => console.log('Updated:', data)}
+ *   />
+ * )
+ */
+const UserProfile = ({ userId, editable = false, onUpdate }) => {
+  // State for user data
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  /**
+   * Fetches user data from the API
+   * @param {string} id - The user ID to fetch
+   * @returns {Promise<Object>} The user data
+   */
+  const fetchUserData = useCallback(async (id) => {
+    try {
+      const data = await userService.getUser(id);
+      return data;
+    } catch (err) {
+      throw new Error(`Failed to fetch user: ${err.message}`);
+    }
+  }, []);
+
+  // Effect for loading user data
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUser = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchUserData(userId);
+        if (isMounted) {
+          setUserData(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadUser();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [userId, fetchUserData]);
+
+  // Component rendering logic
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!userData) return null;
+
+  return (
+    <div className="user-profile">
+      {/* Component UI implementation */}
+    </div>
+  );
+};
+
+// PropTypes for documentation and runtime validation
+UserProfile.propTypes = {
+  /** User ID to display profile for */
+  userId: PropTypes.string.isRequired,
+  /** Whether the profile is editable */
+  editable: PropTypes.bool,
+  /** Callback when user data is updated */
+  onUpdate: PropTypes.func
+};
+
+export default UserProfile;
+```
+
+## Folder Documentation
+1. Each folder must contain `README.md` explaining:
+   - Folder purpose and scope
+   - File listing with descriptions
+   - Key patterns and conventions
+   - Dependencies and relationships
+
+## `README.md` Format
+```markdown
+# [Folder Name]
+
+## Purpose
+[Brief description of folder responsibility]
+
+## Contents
+[List and description of files/patterns]
+
+## Conventions
+[Folder-specific rules and patterns]
+
+## Dependencies
+[Related folders and components]
+```
+
+## Documentation Updates
+1. Update documentation when:
+   - Adding new code
+   - Changing existing behavior
+   - Fixing bugs
+   - Refactoring code
+2. Review documentation in PRs
+3. Keep `README.md` files current
+
+## AI-Friendly Documentation
+1. Use consistent formatting and structure
+2. Include explicit type information (PropTypes or TypeScript)
+3. Provide clear section markers and hierarchies
+4. Use standardized comment markers for different purposes:
+   ```javascript
+   // TODO: Mark future work
+   // FIXME: Mark issues needing attention
+   // NOTE: Add important context
+   // OPTIMIZE: Mark performance considerations
+   ```
+5. Document edge cases and error scenarios explicitly
+6. Include links to related components and documentation
+7. Use JSDoc tags consistently (@param, @returns, @example, etc.)
+8. Document component composition patterns
+9. Explain state management approaches (Context, Redux, etc.)
+
+# Testing
+
+## Running Tests
+
+### Unit Tests
+```bash
+# Run all tests
+npm run test
+
+# Run specific test file
+npm run test src/components/UserProfile.test.jsx
+npm run test src/services/authService.test.js
+
+# Run tests in watch mode (auto-rerun on file changes)
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests that match a specific pattern
+npm run test -- --testNamePattern="renders user profile"
+
+# Run tests in UI mode
+npm run test:ui
+```
+
+### Troubleshooting
+If encountering issues during test runs:
+1. Check for proper Node.js version (use nvm to manage versions)
+2. Verify all dependencies are installed correctly
+3. Clear Vitest cache with `npm run test -- --clearCache`
+4. Check for environment variables needed in `.env.test`
+5. Try running tests in isolation with `--isolate` flag
+6. Check Vitest configuration in `vitest.config.js` or `vite.config.js`
+
+### Integration Tests
+```bash
+# Run all integration tests
+npm run test:integration
+
+# Run specific integration test file
+npm run test:integration src/integration/auth.test.jsx
+
+# Run integration tests with specific tag
+npm run test:integration -- --testNamePattern=auth
+
+# Run integration tests in UI mode
+npm run test:integration:ui
+```
+
+### End-to-End Tests
+```bash
+# Run all E2E tests with Cypress
+npm run cypress
+
+# Open Cypress test runner UI
+npm run cypress:open
+
+# Run specific Cypress test file
+npm run cypress:run -- --spec "cypress/e2e/login.cy.js"
+```
+
+### Coverage Report
+```bash
+# Generate coverage report
+npm run test:coverage
+
+# Coverage report will be generated in coverage/index.html
+# Open the report in browser
+open coverage/index.html
+
+# Generate and view coverage report in Vitest UI
+npm run test:coverage:ui
+```
+
+## Test File Organization
+```
+src/
+├── components/           # React components with co-located tests
+│   ├── Button/
+│   │   ├── Button.jsx
+│   │   ├── Button.test.jsx
+│   │   └── Button.module.css
+├── hooks/               # Custom React hooks with tests
+│   ├── useAuth.js
+│   └── useAuth.test.js
+├── services/            # API services with tests
+│   ├── authService.js
+│   └── authService.test.js
+├── utils/               # Utility functions with tests
+│   ├── formatters.js
+│   └── formatters.test.js
+├── __tests__/           # General test files
+│   └── integration/     # Integration tests
+├── __mocks__/           # Mock files for testing
+└── cypress/             # End-to-end tests
+    ├── e2e/             # Test specs
+    ├── fixtures/        # Test data
+    └── support/         # Test helpers
+```
+
+## Core Testing Requirements
+1. Component Tests
+   - Required for all components
+   - Test rendering with different props
+   - Test user interactions (clicks, inputs, etc.)
+   - Test state changes and side effects
+   - Verify accessibility requirements
+
+2. Hook Tests
+   - Required for all custom hooks
+   - Test with different parameters
+   - Test state updates and effects
+   - Verify cleanup functions
+
+3. Integration Tests
+   - Required for component interactions
+   - Test data flow between components
+   - Test context providers with consumers
+   - Test form submissions and API interactions
+
+4. End-to-End Tests
+   - Required for critical user flows
+   - Test complete user journeys
+   - Verify UI behavior across pages
+   - Test authentication and authorization
+
+## Component Tests Structure
+```jsx
+// src/components/UserProfile/UserProfile.test.jsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import UserProfile from './UserProfile';
+import { userService } from '../../services/userService';
+
+// Mock the service
+vi.mock('../../services/userService');
+
+describe('UserProfile component', () => {
+  const mockUser = { id: '123', name: 'John Doe', email: 'john@example.com' };
+
+  beforeEach(() => {
+    // Reset mocks between tests
+    vi.clearAllMocks();
+    // Setup mock implementation
+    userService.getUser.mockResolvedValue(mockUser);
+  });
+
+  test('renders loading state initially', () => {
+    render(<UserProfile userId="123" />);
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+
+  test('renders user data after loading', async () => {
+    render(<UserProfile userId="123" />);
+
+    // Wait for the user data to load
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+    });
+
+    // Check that user data is displayed
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+
+  test('handles edit mode when editable prop is true', async () => {
+    render(<UserProfile userId="123" editable={true} />);
+
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+    });
+
+    // Click edit button
+    fireEvent.click(screen.getByText('Edit Profile'));
+
+    // Check that form inputs appear
+    expect(screen.getByLabelText('Name')).toHaveValue('John Doe');
+    expect(screen.getByLabelText('Email')).toHaveValue('john@example.com');
+  });
+});
+```
+
+## Hook Tests Structure
+```jsx
+// src/hooks/useAuth.test.js
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useAuth } from './useAuth';
+import { authService } from '../services/authService';
+
+// Mock the auth service
+vi.mock('../services/authService');
+
+describe('useAuth hook', () => {
+  beforeEach(() => {
+    // Reset mocks and localStorage
+    vi.clearAllMocks();
+    localStorage.clear();
+
+    // Setup mock implementations
+    authService.login.mockResolvedValue({ token: 'fake-token', user: { id: '123' } });
+    authService.logout.mockResolvedValue(true);
+  });
+
+  test('provides authentication state', () => {
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.user).toBeNull();
+    expect(typeof result.current.login).toBe('function');
+    expect(typeof result.current.logout).toBe('function');
+  });
+
+  test('login updates auth state and stores token', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useAuth());
+
+    // Call the login function
+    act(() => {
+      result.current.login('user@example.com', 'password');
+    });
+
+    // Wait for the async operation to complete
+    await waitForNextUpdate();
+
+    // Check that state was updated
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user).toEqual({ id: '123' });
+    expect(localStorage.getItem('auth_token')).toBe('fake-token');
+  });
+});
+```
+
+## Integration Tests Structure
+```jsx
+// src/__tests__/integration/UserRegistration.test.jsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../../contexts/AuthContext';
+import UserRegistration from '../../pages/UserRegistration';
+import { userService } from '../../services/userService';
+
+vi.mock('../../services/userService');
+
+describe('User Registration Flow', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    userService.registerUser.mockResolvedValue({ id: '123', email: 'new@example.com' });
+  });
+
+  test('completes registration flow successfully', async () => {
+    // Render with necessary providers
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <UserRegistration />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    // Fill out the registration form
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'new@example.com' }
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'securepass123' }
+    });
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'securepass123' }
+    });
+
+    // Submit the form
+    fireEvent.click(screen.getByText('Register'));
+
+    // Wait for the registration to complete
+    await waitFor(() => {
+      expect(userService.registerUser).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        password: 'securepass123'
+      });
+    });
+
+    // Check that success message is shown
+    expect(screen.getByText('Registration successful!')).toBeInTheDocument();
+
+    // Check that we're redirected to login
+    expect(screen.getByText('Please log in with your new account')).toBeInTheDocument();
+  });
+});
+```
+
+## Coverage Requirements
+1. Line Coverage: Minimum 90%
+2. Branch Coverage: Minimum 90%
+3. Function Coverage: Minimum 95%
+4. Component Coverage: Minimum 95%
+
+## Test Categories to Include
+1. Component Rendering
+2. User Interactions
+3. State Management
+4. Props Validation
+5. Error Handling
+6. Edge Cases
+7. Accessibility (a11y)
+8. Responsive Design
+9. API Integration
+10. Authentication/Authorization
+11. Form Validation
+12. Performance Optimization
+
+## Best Practices
+1. Use React Testing Library over Enzyme
+2. Test behavior, not implementation
+3. Mock external dependencies
+4. Use data-testid attributes for test selectors
+5. Keep tests focused and isolated
+6. Use meaningful test descriptions
+7. Follow Arrange-Act-Assert pattern
+8. Clean up after tests (unmount, clear mocks)
+9. Test accessibility with axe or similar tools
+10. Use snapshot tests sparingly
+11. Test error boundaries
+
+## Test Performance
+1. Use Vitest's watch mode during development
+2. Utilize Vitest UI for visual test debugging
+3. Take advantage of Vitest's thread pooling for parallel execution
+4. Minimize component re-renders in tests
+5. Use appropriate mocks and stubs
+6. Use test.each for parameterized tests
+7. Enable Vitest's --threads option for multi-threading
+8. Use --isolate flag for problematic tests
+9. Configure Vitest to use in-source testing for faster runs
+
+# Pull Requests
+
+## Core Principles
+1. Single Critical Change
+   - One significant change per PR (<50 lines)
+   - Test files don't count toward line limit
+   - Supporting changes (docs, tests) can be included
+   - Use stacked PRs for dependent changes
+
+2. Clear Scope Definition
+   - Critical files clearly identified
+   - Changes logically grouped
+   - Dependencies explicitly stated
+   - Impact clearly documented
+
+## React-Specific Considerations
+1. Component Changes
+   - Include component, tests, and styles in same PR
+   - Document prop interface changes
+   - Note any breaking changes to component API
+   - Include before/after screenshots for visual changes
+
+2. State Management
+   - Keep Redux/Context changes isolated
+   - Document state shape changes
+   - Consider migration path for existing state
+   - Test state transitions thoroughly
+
+3. Performance Considerations
+   - Document any memoization strategies
+   - Note any lazy-loading implementations
+   - Include before/after render metrics if applicable
+   - Test with React DevTools performance tab
+
+4. Accessibility
+   - Verify WCAG compliance
+   - Test with screen readers
+   - Include accessibility test results
+   - Document any accessibility trade-offs
+
+## PR Structure
+
+### Title Format
+```
+[Type]: Brief description
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- refactor: Code restructuring
+- perf: Performance improvements
+- style: UI styling changes (no functional changes)
+- a11y: Accessibility improvements
+- docs: Documentation updates
+- test: Test additions/updates
+- chore: Maintenance tasks
+- deps: Dependency updates
+
+Component-specific format:
+[Type](ComponentName): Brief description
+Example: feat(Button): Add loading state to Button component
+```
+
+### Description Template
+```markdown
+## Overview
+[Brief description of the change]
+
+## Critical Changes
+- File: `path/to/critical/file.jsx`
+- Type: [Component/Hook/Context/Redux/etc]
+- Lines Changed: XX
+- Purpose: [Clear explanation]
+
+## Implementation Details
+- [Technical details]
+- [Design decisions]
+- [Trade-offs considered]
+- [State management approach]
+- [Performance considerations]
+
+## Testing
+- [ ] Component tests
+- [ ] Hook tests
+- [ ] Integration tests
+- [ ] End-to-end tests
+- [ ] Accessibility tests
+- [ ] Manual testing steps
+
+## Screenshots/Recordings
+[Include screenshots or recordings of UI changes]
+
+## Browser Compatibility
+- [ ] Chrome
+- [ ] Firefox
+- [ ] Safari
+- [ ] Edge
+
+## Related PRs
+- Depends on: #XXX
+- Parent PR: #XXX
+```
+
+## Stacked PR Workflow
+
+### 1. Creating Stacks
+```bash
+# Create first feature branch
+gt create -am "DB Migration: Add user_roles table"
+
+# Stack subsequent changes
+gt create -am "Feature: Add UserRole model"
+
+# Review stack
+gt log
+```
+
+### 2. Managing Changes
+```bash
+# Update parent branch
+gt modify -a  # Auto-restacks dependent branches
+
+# Submit stack
+gt submit
+```
+
+### 3. Stack Organization Examples
+```
+Feature: User Profile Implementation
+1. Types: Add user profile types
+   - src/types/user.ts
+   - src/types/profile.ts
+
+2. API: Add user profile service
+   - src/services/profileService.ts
+   - src/services/profileService.test.ts
+
+3. State: Add profile state management
+   - src/store/profileSlice.ts (Redux) or
+   - src/contexts/ProfileContext.tsx (Context API)
+   - src/hooks/useProfile.ts
+
+4. UI: Add profile components
+   - src/components/Profile/ProfileCard.tsx
+   - src/components/Profile/ProfileForm.tsx
+   - src/components/Profile/ProfileImage.tsx
+   - src/components/Profile/__tests__/ProfileCard.test.tsx
+
+5. Page: Add profile page
+   - src/pages/ProfilePage.tsx
+   - src/pages/__tests__/ProfilePage.test.tsx
+
+6. Integration: Add end-to-end tests
+   - cypress/e2e/profile.cy.ts
+```
+
+# Memory Management
+
+## Overview
+The `.memory` file in the root directory serves as a persistent knowledge base for AI agents.
+This file helps track insights, issues, and maintain context across different AI interactions.
+
+## File Structure
+```
+.memory
+├── Long Term     # Strategic improvements and feature suggestions
+├── Short Term    # Immediate issues and high-priority concerns
+├── Learning      # AI agent feedback for process improvements
+└── History       # Log of AI interactions and findings
+```
+
+## Reading Rules
+1. Always read entire file before making updates
+2. Priority order: Short Term > Learning > History > Long Term
+3. Use History to understand past decisions
+4. Check for related entries before adding new ones
+
+## Writing Rules
+1. Long Term Entry Format:
+   ```markdown
+   - Category (Refactoring/Feature/etc):
+     1. Clear action item
+        - Supporting context
+        - Reasoning
+        Related to: #<entry number> (if applicable)
+   ```
+
+2. Short Term Entry Format:
+   ```markdown
+   - [PRIORITY] Issue description
+     - File: `path/to/file`
+     - Context: Brief explanation
+     Related to: #<entry number> (if applicable)
+   ```
+
+3. History Entry Format:
+   ```markdown
+   - [YYYY-MM-DD] Topic
+     - Finding/Action
+     - Impact/Result
+     - Recommendation
+   ```
+
+## Entry Management
+1. Priority Levels:
+   - [CRITICAL]: Must be addressed immediately
+   - [HIGH]: Should be addressed in current sprint
+   - [MEDIUM]: Important but not urgent
+   - [LOW]: Nice to have
+
+2. Entry Lifecycle:
+   - New issues -> Short Term
+   - Resolved issues -> History
+   - Pattern observations -> Long Term
+   - Update existing entries instead of duplicating
+
+3. When to Update:
+   - After code analysis
+   - When finding bugs/issues
+   - After suggesting improvements
+   - When resolving issues
+
+## Best Practices
+1. Always include file paths when referencing code
+2. Link related entries using entry numbers
+3. Remove resolved Short Term items
+4. Keep entries concise but informative
+5. Include context for future reference
+
+# Type Safety
+
+## Core Principles
+1. Progressive Type Enforcement
+   - All new code must be written in TypeScript
+   - Existing JavaScript code upgraded incrementally
+   - Critical paths prioritized for strict typing
+   - Props and state must always be typed
+
+2. Strictness Levels
+   - Configure TypeScript compiler with strict mode enabled
+   - Use `tsconfig.json` with the following settings:
+     ```json
+     "strict": true,
+     "noImplicitAny": true,
+     "strictNullChecks": true,
+     "strictFunctionTypes": true,
+     "strictPropertyInitialization": true
+     ```
+   - Use ESLint with `@typescript-eslint` rules enabled
+
+## Type Signatures
+
+### Interface Definitions
+```typescript
+// src/types/user.ts
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum UserRole {
+  Admin = 'admin',
+  Member = 'member',
+  Guest = 'guest'
+}
+
+export interface UserUpdateParams {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  role?: UserRole;
+}
+```
+
+### Component Props
+```typescript
+// src/components/UserProfile/UserProfile.tsx
+import React from 'react';
+import { User, UserUpdateParams } from '../../types/user';
+
+export interface UserProfileProps {
+  /** User data to display */
+  user: User;
+  /** Whether the profile is editable */
+  editable?: boolean;
+  /** Callback when user data is updated */
+  onUpdate?: (userId: string, params: UserUpdateParams) => Promise<void>;
+  /** Custom CSS class name */
+  className?: string;
+}
+
+export const UserProfile: React.FC<UserProfileProps> = ({
+  user,
+  editable = false,
+  onUpdate,
+  className
+}) => {
+  // Implementation
+  return (
+    <div className={className}>
+      {/* Component JSX */}
+    </div>
+  );
+};
+```
+
+### Custom Hooks
+```typescript
+// src/hooks/useUser.ts
+import { useState, useCallback } from 'react';
+import { User, UserUpdateParams } from '../types/user';
+import { userService } from '../services/userService';
+
+export interface UseUserResult {
+  user: User | null;
+  isLoading: boolean;
+  error: Error | null;
+  fetchUser: (id: string) => Promise<void>;
+  updateUser: (id: string, params: UserUpdateParams) => Promise<void>;
+}
+
+export const useUser = (initialUserId?: string): UseUserResult => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(!!initialUserId);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchUser = useCallback(async (id: string) => {
+    setIsLoading(true);
+    try {
+      const userData = await userService.getUser(id);
+      setUser(userData);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch user'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Implementation of other methods
+
+  return { user, isLoading, error, fetchUser, updateUser };
+};
+```
+
+## Type Definitions
+
+### Utility Types
+```typescript
+// src/types/common.ts
+
+/** API response wrapper type */
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  errors?: string[];
+  meta?: Record<string, unknown>;
+}
+
+/** Generic async operation result */
+export type Result<T, E = Error> =
+  | { success: true; data: T; error?: never }
+  | { success: false; error: E; data?: never };
+
+/** Money value with currency */
+export interface Money {
+  amount: number;
+  currency: string;
+}
+
+/** Pagination parameters */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
+/** Paginated response */
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+```
+
+### Type Guards
+```typescript
+// src/utils/typeGuards.ts
+import { User, ApiResponse } from '../types';
+
+/** Type guard for User type */
+export function isUser(obj: unknown): obj is User {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'firstName' in obj &&
+    'lastName' in obj &&
+    'email' in obj
+  );
+}
+
+/** Type guard for API responses */
+export function isApiResponse<T>(obj: unknown): obj is ApiResponse<T> {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'success' in obj &&
+    'data' in obj
+  );
+}
+```
+
+## Testing Requirements
+
+1. Type Checking in Tests
+```typescript
+// src/components/UserProfile/UserProfile.test.tsx
+import { render, screen } from '@testing-library/react';
+import { User, UserRole } from '../../types/user';
+import { UserProfile } from './UserProfile';
+
+describe('UserProfile', () => {
+  // Type-safe test data
+  const mockUser: User = {
+    id: '123',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    role: UserRole.Member,
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  it('renders user information correctly', () => {
+    render(<UserProfile user={mockUser} />);
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+  });
+});
+```
+
+2. Coverage Requirements
+   - Minimum 95% type coverage for new code
+   - No `any` types in component props or state
+   - Type checking enforced in CI pipeline
+   - Props interfaces exported for documentation
+
+## CI Integration
+
+1. Type Checking Commands
+```bash
+# Basic type checking
+npm run typecheck
+
+# Type checking with watch mode
+npm run typecheck:watch
+
+# Generate type coverage report
+npm run typecheck:coverage
+```
+
+2. Required Checks
+   - TypeScript compilation must pass
+   - ESLint with TypeScript rules must pass
+   - No `any` types in critical paths
+   - Type coverage meets minimum threshold
+
+## Best Practices
+
+1. Type Declaration
+   - Use explicit type annotations for function parameters and return types
+   - Use type inference for local variables when types are obvious
+   - Use non-null assertion (`!`) only when you're absolutely certain
+   - Use optional chaining (`?.`) and nullish coalescing (`??`) for nullable values
+
+2. Collection Types
+```typescript
+User[]                      // Array of Users
+Map<string, User>           // Map with string keys, User values
+Set<number>                 // Set of numbers
+Record<string, unknown>     // Object with string keys, unknown values
+Partial<User>               // User with all properties optional
+Required<UserUpdateParams>  // UserUpdateParams with all properties required
+Readonly<User>              // User with all properties readonly
+```
+
+3. Generic Types
+```typescript
+// Generic function
+function getFirst<T>(items: T[]): T | undefined {
+  return items[0];
+}
+
+// Generic component
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+}
+
+function List<T>({ items, renderItem }: ListProps<T>) {
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li key={index}>{renderItem(item)}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+4. Function Types
+```typescript
+// Function type with parameters and return type
+type FetchUserFn = (id: string) => Promise<User>;
+
+// Function type with optional parameters
+type UpdateUserFn = (id: string, params?: UserUpdateParams) => Promise<User>;
+
+// Event handler types
+type ClickHandler = React.MouseEventHandler<HTMLButtonElement>;
+type ChangeHandler = React.ChangeEventHandler<HTMLInputElement>;
+```
+
+## Error Handling
+
+1. Type Narrowing
+```typescript
+// Type narrowing with type guards
+function processValue(value: string | number | null): string {
+  if (value === null) {
+    return 'No value provided';
+  }
+
+  if (typeof value === 'number') {
+    return `Numeric value: ${value.toFixed(2)}`;
+  }
+
+  return `String value: ${value.toUpperCase()}`;
+}
+
+// Using custom type guards
+function processApiResponse<T>(response: unknown): T {
+  if (!isApiResponse<T>(response)) {
+    throw new Error('Invalid API response format');
+  }
+
+  if (!response.success) {
+    throw new Error(response.errors?.join(', ') || 'Unknown error');
+  }
+
+  return response.data;
+}
+```
+
+2. Runtime Type Checking
+```typescript
+// Using zod for runtime validation
+import { z } from 'zod';
+
+// Define schema
+const UserSchema = z.object({
+  id: z.string(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email(),
+  role: z.enum(['admin', 'member', 'guest']),
+  isActive: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date()
+});
+
+// Type derived from schema
+type UserFromSchema = z.infer<typeof UserSchema>;
+
+// Validate at runtime
+function validateUser(data: unknown): UserFromSchema {
+  return UserSchema.parse(data);
+}
+
+// Safe API data handling
+try {
+  const userData = validateUser(response.data);
+  // userData is now type-safe and validated
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    // Handle validation errors
+    console.error('Validation errors:', error.errors);
+  }
+}
+```
+
+## Migration Strategy
+
+1. New Code
+   - Must be written in TypeScript
+   - Full type definitions required
+   - No `any` types in component props or state
+   - Test coverage with typed test data
+
+2. Existing Code
+   - Create `tsconfig.json` with appropriate settings
+   - Rename `.js` files to `.tsx` or `.ts` incrementally
+   - Add `// @ts-check` to JavaScript files not yet converted
+   - Use JSDoc comments for JavaScript files
+
+3. Priority Order
+   - Shared types and interfaces
+   - Components with props
+   - Custom hooks
+   - Context providers
+   - API services
+   - Utility functions
+
+## Tooling
+
+1. Required Tools
+   - TypeScript compiler (`tsc`)
+   - ESLint with TypeScript plugin
+   - Type-checking scripts in package.json
+   - IDE extensions (VS Code TypeScript support)
+   - Type coverage tools (typescript-coverage-report)
+
+2. Development Flow
+   - Define interfaces and types first
+   - Implement components and functions with types
+   - Run type checker frequently
+   - Fix type errors immediately
+   - Use linting rules to enforce type safety
+
+## Documentation
+
+1. Type Documentation
+   - Use JSDoc comments for all exported types
+   - Document complex type parameters
+   - Explain type constraints and decisions
+   - Document props interfaces thoroughly
+
+2. Example
+```typescript
+/**
+ * Fetches user data and handles authentication
+ * @param userId - The ID of the user to fetch
+ * @param options - Additional options for the request
+ * @returns Promise resolving to the user data or null if not found
+ * @throws {AuthError} If authentication fails
+ * @throws {ApiError} If the API request fails
+ */
+async function fetchUser(
+  userId: string,
+  options: FetchOptions = {}
+): Promise<User | null> {
+  // Implementation
+}
+
+/**
+ * Button component with various states
+ * @example
+ * <Button
+ *   variant="primary"
+ *   isLoading={isSubmitting}
+ *   onClick={handleSubmit}
+ * >
+ *   Submit Form
+ * </Button>
+ */
+export interface ButtonProps {
+  /** The visual style of the button */
+  variant?: 'primary' | 'secondary' | 'danger';
+  /** Whether the button is in loading state */
+  isLoading?: boolean;
+  /** Whether the button is disabled */
+  disabled?: boolean;
+  /** Click handler */
+  onClick?: () => void;
+  /** Button contents */
+  children: React.ReactNode;
+}
+```
+
+# Workflow
+
+## Six-Phase Development Workflow
+
+### Phase 1: High-Level Proposal
+- Present high-level overview of changes
+- Reference relevant files and folders
+- Explain architectural decisions
+- NO code changes
+- RULE: Only propose what's explicitly requested - no over engineering
+
+### Phase 2: Detail Discussion
+- Interactive Q&A to refine design
+- Document technical specifications
+- Identify potential risks
+- Get explicit approval before proceeding
+- NO code changes
+- RULE: Keep scope strictly limited to requirements - no feature creep
+
+### Phase 3: Prototyping
+- Implement core functionality
+- Focus on working code
+- Get feedback and iterate
+- Get approval before proceeding
+- Assume server is running
+- RULE: Write minimum code needed to fulfill requirements - no premature optimization
+
+### Phase 4: Quality Assurance
+- Add/update documentation
+- Write comprehensive tests
+- Apply type safety
+- Follow style guidelines
+- Update folder README.md files
+
+### Phase 5: PR Creation
+- Follow stacked PR workflow
+- Use Graphite commands
+- Include PR templates
+- Focus on single critical changes
+
+### Phase 6: Memory Management
+- Update .memory file
+- Document insights
+- Record history
+- Create separate PR
+
+# Instructions
+
+1. Follow this workflow by default
+2. Skip workflow only when explicitly specified asked to skip workflow
+3. Read and adhere to all guidelines in this document
+4. Follow type safety, documentation, and organization rules strictly
