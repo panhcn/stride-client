@@ -7,11 +7,10 @@ on:
 
 jobs:
   deploy:
-    name: Build & Deploy
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-west-2  # ✅ Replace with your region
+      AWS_REGION: us-west-2
       BUCKET_NAME: app.gostride.co
 
     steps:
@@ -22,22 +21,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          cache: 'npm' # ✅ npm cache enabled
+          cache-dependency-path: package-lock.json
 
-      - name: Install dependencies with cache
-        run: |
-          cd client
-          npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build React App
-        run: |
-          cd client
-          npm run build
+      - name: Build React app
+        run: npm run build
 
       - name: Deploy to S3
         run: |
-          aws s3 sync client/build s3://$BUCKET_NAME --region $AWS_REGION --delete
+          aws s3 sync build/ s3://app.gostride.co --region us-west-2 --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
