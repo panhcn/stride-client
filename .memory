@@ -1,0 +1,25 @@
+# Memory File
+
+## Long Term
+- Feature (UI Components):
+  1. Material-UI (MUI) has been installed as the UI component library
+     - Core packages: @mui/material, @mui/icons-material
+     - Required peer dependencies: @emotion/react, @emotion/styled
+     - Roboto font: @fontsource/roboto
+     - Theme configuration has been set up in src/theme/
+
+## Short Term
+- [MEDIUM] Consider creating reusable MUI components
+  - File: `src/components/`
+  - Context: As the application grows, create reusable UI components using MUI
+
+## Learning
+- Following the Six-Phase Development Workflow is essential for all changes
+- Use Graphite (gt) commands for PR creation
+- Avoid feature creep and focus only on requested changes
+
+## History
+- [2024-04-24] MUI Installation
+  - Added MUI packages to the project
+  - Created theme configuration
+  - Created PR using Graphite workflow
