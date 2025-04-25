@@ -7,19 +7,45 @@
      - Required peer dependencies: @emotion/react, @emotion/styled
      - Roboto font: @fontsource/roboto
      - Theme configuration has been set up in src/theme/
+- Feature (Testing):
+  1. Consider adding component testing examples for common patterns
+     - Form validation testing
+     - Async component testing
+     - Context provider testing
+  2. Explore adding E2E testing with Cypress for critical user flows
+     - Authentication flow
+     - Main user journeys
+  3. Consider setting up test coverage thresholds in CI pipeline
+     - Minimum 80% coverage for new code
+     - Focus on component and utility function coverage
 
 ## Short Term
 - [MEDIUM] Consider creating reusable MUI components
   - File: `src/components/`
   - Context: As the application grows, create reusable UI components using MUI
+- [MEDIUM] Complete test setup with sample tests
+  - File: `src/App.test.tsx`
+  - Context: Basic component test to validate Vitest setup
 
 ## Learning
 - Following the Six-Phase Development Workflow is essential for all changes
 - Use Graphite (gt) commands for PR creation
 - Avoid feature creep and focus only on requested changes
+- Testing Framework:
+  1. Vitest provides better integration with Vite than Jest
+  2. @testing-library/react v16.3.0+ supports React 19
+  3. Co-locate test files with components for better organization
 
 ## History
 - [2024-04-24] MUI Installation
   - Added MUI packages to the project
   - Created theme configuration
   - Created PR using Graphite workflow
+- [2025-04-25] Testing Framework Migration
+  - Finding: Successfully migrated from Jest to Vitest
+  - Impact: Improved integration with Vite, better developer experience
+  - Recommendation: Use Vitest for all future testing needs
+  - Files changed:
+    - vite.config.ts: Added Vitest configuration
+    - package.json: Added Vitest dependencies and test scripts
+    - src/setupTests.ts: Created for test environment setup
